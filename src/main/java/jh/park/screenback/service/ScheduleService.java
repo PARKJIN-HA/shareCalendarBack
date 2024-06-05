@@ -1,11 +1,13 @@
 package jh.park.screenback.service;
 
+import jh.park.screenback.model.UserGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jh.park.screenback.model.Schedule;
 import jh.park.screenback.repository.ScheduleRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,8 +27,8 @@ public class ScheduleService {
             schedule.setTitle(scheduleDetails.getTitle());
             schedule.setStart(scheduleDetails.getStart());
             schedule.setEnd(scheduleDetails.getEnd());
-            schedule.setEditLastTime(scheduleDetails.getEditLastTime());
-            schedule.setEditLastUser(scheduleDetails.getEditLastUser());
+            schedule.setLastEditTime(scheduleDetails.getLastEditTime());
+//            schedule.setEditLastUser(scheduleDetails.getEditLastUser());
             schedule.setLocation(scheduleDetails.getLocation());
             return scheduleRepository.save(schedule);
         } else {
@@ -40,6 +42,14 @@ public class ScheduleService {
 
     public Optional<Schedule> findById(Long id) {
         return scheduleRepository.findById(id);
+    }
+
+    public Iterable<Schedule> findAll() {
+        return scheduleRepository.findAll();
+    }
+
+    public List<Schedule> findByUserGroup(UserGroup userId) {
+        return scheduleRepository.findByGroup(userId);
     }
 
     // Add other necessary methods

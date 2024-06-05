@@ -1,5 +1,8 @@
 package jh.park.screenback.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,20 +22,9 @@ public class User {
     private Long id;
     private String username;
     private String email;
-    private String role;
 
-    @OneToMany(mappedBy = "memberID")
-    private List<Gantt> gantts;
+    @ManyToMany
+    @JsonManagedReference
+    private List<UserGroup> groups;
 
-    @OneToMany(mappedBy = "user")
-    private List<ToDo> toDos;
-
-    @OneToMany(mappedBy = "user")
-    private List<Notification> notifications;
-
-    @OneToMany(mappedBy = "user")
-    private List<Reply> replies;
-
-    @OneToMany(mappedBy = "user")
-    private List<GroupMember> groupMembers;
 }

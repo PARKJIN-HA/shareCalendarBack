@@ -1,11 +1,17 @@
 package jh.park.screenback.controller;
 
+import jh.park.screenback.model.Gantt;
+import jh.park.screenback.model.User;
+import jh.park.screenback.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import jh.park.screenback.model.UserGroup;
 import jh.park.screenback.service.GroupService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -13,9 +19,23 @@ public class GroupController {
 
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private UserService userService;
+
+    @GetMapping
+    public ResponseEntity<Iterable<UserGroup>> getGroups(Authentication authentication) {
+        Long userId = Long.valueOf(authentication.getName());
+        User user = userService.findById(userId);
+        List<UserGroup> userGroup = groupService.findAllByOwner(user);
+        return ResponseEntity.ok(userGroup);
+    }
 
     @PostMapping
-    public ResponseEntity<UserGroup> createGroup(@RequestBody UserGroup userGroup) {
+    public ResponseEntity<UserGroup> createGroup(@RequestBody UserGroup userGroup, Authentication authentication) {
+        Long userId = Long.valueOf(authentication.getName());
+        User user = userService.findById(userId);
+        userGroup.setOwner(user);
+        user.getGroups().add(userGroup);
         UserGroup createdUserGroup = groupService.save(userGroup);
         return ResponseEntity.ok(createdUserGroup);
     }

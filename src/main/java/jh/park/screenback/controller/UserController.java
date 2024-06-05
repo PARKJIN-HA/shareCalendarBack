@@ -1,18 +1,21 @@
 package jh.park.screenback.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jh.park.screenback.dto.IdTokenRequestDto;
+import jh.park.screenback.dto.ReturnResponse;
+import jh.park.screenback.model.User;
 import jh.park.screenback.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -22,26 +25,59 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity LoginWithGoogleOauth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) {
-        String authToken = userService.loginOAuthGoogle(requestBody);
-        final ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", authToken)
+    public ResponseEntity<Map<String, String>> LoginWithGoogleOauth2(@RequestBody IdTokenRequestDto idTokenRequestDto, HttpServletResponse response) {
+        ReturnResponse returnResponse = userService.loginOAuthGoogle(idTokenRequestDto);
+
+        final ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", returnResponse.getJwtToken())
                 .httpOnly(true)
                 .maxAge(7 * 24 * 3600)
                 .path("/")
                 .secure(false)
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return ResponseEntity.ok().build();
+
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("username", returnResponse.getUser().getUsername());
+        responseBody.put("email", returnResponse.getUser().getEmail());
+
+        return ResponseEntity.ok(responseBody);
     }
 
-    @GetMapping("/private/home")
-    public Map<String, Object> home(@AuthenticationPrincipal OAuth2User oauth2User) {
-        String name = Optional.ofNullable((String) oauth2User.getAttribute("name")).orElse("Unknown User");
-        String email = Optional.ofNullable((String) oauth2User.getAttribute("email")).orElse("Unknown Email");
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        // Invalidate the JWT token by removing it from the client's cookies
+        Cookie cookie = new Cookie("AUTH-TOKEN", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0); // Immediately expire the cookie
+        response.addCookie(cookie);
 
-        return Map.of(
-                "name", name,
-                "email", email
-        );
+        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/userinfo")
+    public ResponseEntity<User> getUserInfo(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String jwtToken = null;
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("AUTH-TOKEN".equals(cookie.getName())) {
+                    jwtToken = cookie.getValue();
+                }
+            }
+        }
+
+        if (jwtToken == null) {
+            return ResponseEntity.status(401).build();
+        }
+        User user;
+        try {
+            user = userService.getUser(jwtToken);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
+
+        return ResponseEntity.ok(user);
     }
 }

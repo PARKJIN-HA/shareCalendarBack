@@ -1,5 +1,8 @@
 package jh.park.screenback.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,19 +21,24 @@ public class Schedule {
 
     private LocalDateTime start;
     private LocalDateTime end;
-    private LocalDateTime editLastTime;
-
-    @ManyToOne
-    private User editFirstUser;
-
-    @ManyToOne
-    private User editLastUser;
-
+    private LocalDateTime lastEditTime;
     private String location;
 
-    @ManyToOne
-    private Gantt gantt;
+//    @ManyToOne
+//    private User editFirstUser;
+//
+//    @ManyToOne
+//    private User editLastUser;
 
-    @OneToMany(mappedBy = "schedule")
-    private List<ToDo> toDos;
+    @ManyToOne
+    @JsonManagedReference
+    private UserGroup group;
+
+    @OneToMany(mappedBy = "id")
+    @JsonManagedReference
+    private List<User> users;
+
+    @ManyToOne
+    @JsonManagedReference
+    private File files;
 }
