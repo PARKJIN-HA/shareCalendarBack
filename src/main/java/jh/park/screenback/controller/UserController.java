@@ -69,12 +69,14 @@ public class UserController {
         }
 
         if (jwtToken == null) {
+            System.out.println("No JWT token found in cookies");
             return ResponseEntity.status(401).build();
         }
         User user;
         try {
             user = userService.getUser(jwtToken);
         } catch (Exception e) {
+            System.out.println("Exception occurred while fetching user info: " + e.getMessage());
             return ResponseEntity.status(401).build();
         }
 

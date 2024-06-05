@@ -64,6 +64,7 @@ public class JWTUtils {
                     .getPayload();
             return Long.valueOf(claims.getSubject());
         } catch (JwtException | IllegalArgumentException e) {
+            System.out.println(e.getMessage());
             return null;
         }
     }
