@@ -53,7 +53,7 @@ public class UserService {
         }
         user = createOrUpdateUser(user);
         ReturnResponse returnResponse = new ReturnResponse();
-        returnResponse.setJwtToken(jwtUtils.createToken((UserDetails) user, false));
+        returnResponse.setJwtToken(jwtUtils.createToken( user, false));
         returnResponse.setUser(user);
         return returnResponse;
     }

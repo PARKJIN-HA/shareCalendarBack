@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
@@ -32,15 +33,11 @@ public class JWTUtils {
 
     public String createToken(User user, boolean rememberMe) {
         long now = (new Date()).getTime();
-        Date validity = rememberMe ? new Date(now + TOKEN_VALIDITY_REMEMBER) : new Date(now + TOKEN_VALIDITY);
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole());
-
+        Date validity = new Date(now + (rememberMe ? TOKEN_VALIDITY_REMEMBER : TOKEN_VALIDITY)); // 30 days or 1 day
         return Jwts.builder()
-                .subject(user.getId().toString())
+                .subject(String.valueOf(user.getId()))
                 .issuedAt(new Date())
                 .expiration(validity)
-                .claims(claims)
                 .signWith(key)
                 .compact();
     }
@@ -55,6 +52,18 @@ public class JWTUtils {
             List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(claims.get("role", String.class));
             return new UsernamePasswordAuthenticationToken(claims.getSubject(), token, authorities);
         } catch (JwtException | IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+    public Long getUserIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return Long.valueOf(claims.getSubject());
+        } catch (JwtException | IllegalArgumentException e) {
             return null;
         }
     }
