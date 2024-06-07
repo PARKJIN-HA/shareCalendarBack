@@ -35,7 +35,7 @@ public class GroupController {
         Long userId = Long.valueOf(authentication.getName());
         User user = userService.findById(userId);
         userGroup.setOwner(user);
-        user.getGroups().add(userGroup);
+        userGroup.setGroupMembers(List.of(user));
         UserGroup createdUserGroup = groupService.save(userGroup);
         return ResponseEntity.ok(createdUserGroup);
     }

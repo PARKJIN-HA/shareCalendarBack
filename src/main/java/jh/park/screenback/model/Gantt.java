@@ -24,7 +24,7 @@ public class Gantt {
     private User editUser;
 
     @ManyToOne
-    private User memberID;
+    private User createdUser;
 
     @ManyToOne
     private UserGroup userGroupId;

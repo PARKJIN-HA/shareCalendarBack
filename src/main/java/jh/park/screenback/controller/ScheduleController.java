@@ -1,6 +1,7 @@
 package jh.park.screenback.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jh.park.screenback.model.User;
 import jh.park.screenback.model.UserGroup;
 import jh.park.screenback.service.GroupService;
 import jh.park.screenback.service.UserService;
@@ -30,7 +31,8 @@ public class ScheduleController {
     @GetMapping
     public ResponseEntity<List<Schedule>> getSchedules(Authentication authentication) {
         Long userId = Long.valueOf(authentication.getName());
-        List<UserGroup> userGroups = userService.findUserGroupByUserId(userId);
+        User user = userService.findById(userId);
+        List<UserGroup> userGroups = groupService.findAllByGroupMember(user);
         List<Schedule> schedules = new ArrayList<>();
 
         for (UserGroup group : userGroups) {

@@ -24,23 +24,4 @@ public class User {
     private String email;
     private String role;
     private String password;
-
-    @Getter
-    @OneToMany(mappedBy = "createdUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Gantt> gantts;
-
-    @OneToMany(mappedBy = "user")
-    private List<ToDo> toDos;
-
-    @OneToMany(mappedBy = "user")
-    private List<Notification> notifications;
-
-    @OneToMany(mappedBy = "user")
-    private List<Reply> replies;
-
-    @ManyToMany
-    @JsonManagedReference
-    private List<UserGroup> groups;
-
 }

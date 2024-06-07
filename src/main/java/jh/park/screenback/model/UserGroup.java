@@ -18,14 +18,11 @@ public class UserGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
 
     @ManyToOne
-    @JsonBackReference
     private User owner;
 
     @OneToMany(mappedBy = "id")
-    @JsonBackReference
     private List<User> groupMembers;
 }

@@ -28,11 +28,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Cookie authCookie = cookies == null ? null : Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals("AUTH-TOKEN"))
                 .findAny().orElse(null);
-        Authentication authentication;
-        if (authCookie != null && (authentication = jwtUtils.verifyAndGetAuthentication(authCookie.getValue())) != null) {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = null;
+        if (authCookie != null) {
+            String token = authCookie.getValue();
+            authentication = jwtUtils.verifyAndGetAuthentication(token);
+            if (authentication == null) {
+                String newToken = jwtUtils.refreshToken(token);
+                if (newToken != null) {
+                    response.addCookie(new Cookie("AUTH-TOKEN", newToken));
+                }
+            } else {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         filterChain.doFilter(request, response);
     }
 }
-

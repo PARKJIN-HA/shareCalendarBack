@@ -1,6 +1,7 @@
 package jh.park.screenback.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -34,7 +35,12 @@ public class JWTUtils {
     public String createToken(User user, boolean rememberMe) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + (rememberMe ? TOKEN_VALIDITY_REMEMBER : TOKEN_VALIDITY)); // 30 days or 1 day
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getRole());
+
         return Jwts.builder()
+                .claims(claims)
                 .subject(String.valueOf(user.getId()))
                 .issuedAt(new Date())
                 .expiration(validity)
@@ -51,7 +57,28 @@ public class JWTUtils {
                     .getPayload();
             List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(claims.get("role", String.class));
             return new UsernamePasswordAuthenticationToken(claims.getSubject(), token, authorities);
-        } catch (JwtException | IllegalArgumentException ignored) {
+        }  catch (ExpiredJwtException e) {
+            return null; // Token is expired
+        } catch (JwtException | IllegalArgumentException e) {
+            token = null;
+            return null;
+        }
+    }
+
+    public String refreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            User user = new User();
+            user.setId(Long.valueOf(claims.getSubject()));
+            user.setRole(claims.get("role", String.class));
+            return createToken(user, false);
+        }  catch (ExpiredJwtException e) {
+            return null; // Token is expired
+        } catch (JwtException | IllegalArgumentException e) {
             return null;
         }
     }
@@ -63,6 +90,8 @@ public class JWTUtils {
                     .parseSignedClaims(token)
                     .getPayload();
             return Long.valueOf(claims.getSubject());
+        }  catch (ExpiredJwtException e) {
+            return null; // Token is expired
         } catch (JwtException | IllegalArgumentException e) {
             System.out.println(e.getMessage());
             return null;

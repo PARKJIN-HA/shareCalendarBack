@@ -32,5 +32,9 @@ public class GroupService {
         return groupRepository.findAllByOwner(owner);
     }
 
+    public List<UserGroup> findAllByGroupMember(User groupMember) {
+        return groupRepository.findAllByGroupMembers(groupMember);
+    }
+
     // Add other necessary methods
 }
