@@ -1,5 +1,6 @@
 package jh.park.screenback.controller;
 
+import jh.park.screenback.dto.GanttDTO;
 import jh.park.screenback.model.User;
 import jh.park.screenback.model.UserGroup;
 import jh.park.screenback.service.GroupService;
@@ -71,9 +72,11 @@ public class GanttController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Gantt> updateGanttSchedule(@PathVariable Long id, @RequestBody Gantt ganttDetails) {
+    public ResponseEntity<Gantt> updateGanttSchedule(@PathVariable Long id, @RequestBody GanttDTO ganttDetails, Authentication authentication) {
         // Implement update logic here
-        Gantt updatedGantt = ganttService.update(id, ganttDetails);
+        Long userId = Long.valueOf(authentication.getName());
+        User user = userService.findById(userId);
+        Gantt updatedGantt = ganttService.update(id, ganttDetails, user);
         System.out.println("Updated Gantt Task: " + updatedGantt.getTitle());
         return ResponseEntity.ok(updatedGantt);
     }

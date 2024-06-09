@@ -78,6 +78,7 @@ public class ScheduleController {
     @PutMapping("/{id}")
     public ResponseEntity<Schedule> updateSchedule(@PathVariable Long id, @RequestBody Schedule scheduleDetails) {
         // Implement update logic here
+        System.out.println(scheduleDetails.toString());
         Schedule updatedSchedule = scheduleService.update(id, scheduleDetails);
         return ResponseEntity.ok(updatedSchedule);
     }
