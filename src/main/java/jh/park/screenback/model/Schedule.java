@@ -1,5 +1,6 @@
 package jh.park.screenback.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -13,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,14 +33,14 @@ public class Schedule {
 //    private User editLastUser;
 
     @ManyToOne
-    @JsonManagedReference
+    @JsonBackReference(value = "user-group-schedules")
     private UserGroup group;
 
-    @OneToMany(mappedBy = "id")
-    @JsonManagedReference
-    private List<User> users;
-
     @ManyToOne
-    @JsonManagedReference
-    private File files;
+    @JsonBackReference(value = "user-owner")
+    private User owner;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "schedule-files")
+    private List<File> files;
 }

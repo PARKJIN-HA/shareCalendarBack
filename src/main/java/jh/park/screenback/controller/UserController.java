@@ -79,6 +79,10 @@ public class UserController {
             System.out.println("Exception occurred while fetching user info: " + e.getMessage());
             return ResponseEntity.status(401).build();
         }
+        if (user == null) {
+            System.out.println("No user found with the given JWT token");
+            return ResponseEntity.status(401).build();
+        }
 
         return ResponseEntity.ok(user);
     }

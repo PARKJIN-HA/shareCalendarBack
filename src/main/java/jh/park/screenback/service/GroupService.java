@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import jh.park.screenback.model.UserGroup;
 import jh.park.screenback.repository.GroupRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +33,8 @@ public class GroupService {
         return groupRepository.findAllByOwner(owner);
     }
 
-    public List<UserGroup> findAllByGroupMember(User groupMember) {
-        return groupRepository.findAllByGroupMembers(groupMember);
+    public List<UserGroup> findUserGroupsByGroupMember(User groupMember) {
+        return groupRepository.findUserGroupsByGroupMember(groupMember);
     }
 
     // Add other necessary methods

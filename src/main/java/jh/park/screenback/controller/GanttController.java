@@ -51,7 +51,10 @@ public class GanttController {
             return ResponseEntity.status(401).build(); // Unauthorized if user is null
         }
         gantt.setCreatedUser(user);
-        gantt.setUserGroupId(groupService.findAllByOwner(user).get(0));
+        List<UserGroup> group = groupService.findAllByOwner(user);
+        if (!group.isEmpty()) {
+            gantt.setUserGroupId(groupService.findAllByOwner(user).get(0));
+        }
         Gantt createdGantt = ganttService.save(gantt);
         return ResponseEntity.ok(createdGantt);
     }

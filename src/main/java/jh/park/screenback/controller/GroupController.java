@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import jh.park.screenback.model.UserGroup;
 import jh.park.screenback.service.GroupService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -35,10 +36,16 @@ public class GroupController {
         Long userId = Long.valueOf(authentication.getName());
         User user = userService.findById(userId);
         userGroup.setOwner(user);
-        userGroup.setGroupMembers(List.of(user));
+
+        List<User> groupMembers = new ArrayList<>();
+        groupMembers.add(user);
+        userGroup.setGroupMembers(groupMembers);
+
         UserGroup createdUserGroup = groupService.save(userGroup);
+        System.out.println("Created UserGroup: " + createdUserGroup.toString());
         return ResponseEntity.ok(createdUserGroup);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {

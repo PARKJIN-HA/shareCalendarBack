@@ -48,8 +48,8 @@ public class ScheduleService {
         return scheduleRepository.findAll();
     }
 
-    public List<Schedule> findByUserGroup(UserGroup userId) {
-        return scheduleRepository.findByGroup(userId);
+    public List<Schedule> findByUserGroup(UserGroup group) {
+        return scheduleRepository.findByGroup(group);
     }
 
     // Add other necessary methods
