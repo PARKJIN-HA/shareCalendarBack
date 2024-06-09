@@ -21,18 +21,23 @@ public class UserGroup {
     private String name;
 
     @ManyToOne
-    @JsonBackReference(value = "user-owner")
     private User owner;
 
+    @ManyToMany
+    private List<User> groupMembers;
+
     @OneToMany(mappedBy = "group")
-    @JsonManagedReference(value = "user-group-schedules")
     private List<Schedule> schedules;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_group_members",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> groupMembers;
+    public Long getOwnerId() {
+        return this.owner != null ? this.owner.getId() : null;
+    }
+
+    public List<Long> getGroupMembers() {
+        return this.groupMembers != null ? this.groupMembers.stream().map(User::getId).toList() : null;
+    }
+
+    public List<Long> getSchedules() {
+        return this.schedules != null ? this.schedules.stream().map(Schedule::getId).toList() : null;
+    }
 }

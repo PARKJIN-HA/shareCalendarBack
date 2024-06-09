@@ -40,6 +40,17 @@ public class GanttController {
         List<Gantt> ganttSchedules = ganttService.findAllByCreatedUser(user);
         ganttSchedules.addAll(ganttService.findAllByGroupIDs(groups));
 
+        for (int i = 0; i < ganttSchedules.size(); i++) {
+            for (int j = i + 1; j < ganttSchedules.size(); j++) {
+                if (ganttSchedules.get(i).getId().equals(ganttSchedules.get(j).getId())) {
+                    ganttSchedules.remove(j);
+                    j--;
+                }
+            }
+        }
+
+        System.out.println("Gantt tasks found for user " + user.getUsername() + ": " + ganttSchedules);
+
         return ResponseEntity.ok(ganttSchedules);
     }
 

@@ -24,16 +24,4 @@ public class User {
     private String role;
     private String password;
 
-    @OneToMany(mappedBy = "owner")
-    @JsonManagedReference(value = "user-owner")
-    private List<UserGroup> ownedGroups;
-
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(
-            name = "user_group_members",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    @JsonIgnore
-    private List<UserGroup> groups;
 }

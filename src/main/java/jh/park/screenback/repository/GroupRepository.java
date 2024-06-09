@@ -11,6 +11,5 @@ import java.util.List;
 public interface GroupRepository extends JpaRepository<UserGroup, Long> {
     List<UserGroup> findAllByOwner(User owner);
 
-    @Query("SELECT ug FROM UserGroup ug JOIN ug.groupMembers gm WHERE gm = :groupMember")
-    List<UserGroup> findUserGroupsByGroupMember(@Param("groupMember") User groupMember);
+    List<UserGroup> findUserGroupsByGroupMembers_Id(Long groupMemberId);
 }

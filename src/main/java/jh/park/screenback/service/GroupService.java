@@ -34,7 +34,7 @@ public class GroupService {
     }
 
     public List<UserGroup> findUserGroupsByGroupMember(User groupMember) {
-        return groupRepository.findUserGroupsByGroupMember(groupMember);
+        return groupRepository.findUserGroupsByGroupMembers_Id(groupMember.getId());
     }
 
     // Add other necessary methods

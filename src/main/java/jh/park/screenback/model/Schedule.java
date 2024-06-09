@@ -26,21 +26,24 @@ public class Schedule {
     private LocalDateTime lastEditTime;
     private String location;
 
-//    @ManyToOne
-//    private User editFirstUser;
-//
-//    @ManyToOne
-//    private User editLastUser;
-
     @ManyToOne
-    @JsonBackReference(value = "user-group-schedules")
     private UserGroup group;
 
     @ManyToOne
-    @JsonBackReference(value = "user-owner")
     private User owner;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference(value = "schedule-files")
+    @OneToMany
     private List<File> files;
+
+    public Long getGroupId() {
+        return this.group != null ? this.group.getId() : null;
+    }
+
+    public Long getOwnerId() {
+        return this.owner != null ? this.owner.getId() : null;
+    }
+
+    public List<Long> getFiles() {
+        return this.files != null ? this.files.stream().map(File::getId).toList() : null;
+    }
 }

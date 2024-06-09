@@ -49,7 +49,7 @@ public class ScheduleService {
     }
 
     public List<Schedule> findByUserGroup(UserGroup group) {
-        return scheduleRepository.findByGroup(group);
+        return scheduleRepository.findSchedulesByGroup_Id(group.getId());
     }
 
     // Add other necessary methods
