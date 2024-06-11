@@ -12,4 +12,6 @@ public interface GroupRepository extends JpaRepository<UserGroup, Long> {
     List<UserGroup> findAllByOwner(User owner);
 
     List<UserGroup> findUserGroupsByGroupMembers_Id(Long groupMemberId);
+
+    Iterable<Object> findAllByGroupMembers_Id(Long id);
 }

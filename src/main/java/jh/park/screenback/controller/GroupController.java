@@ -30,6 +30,13 @@ public class GroupController {
         Long userId = Long.valueOf(authentication.getName());
         User user = userService.findById(userId);
         List<UserGroup> userGroup = groupService.findAllByOwner(user);
+        for (Object o : groupService.findAllByGroupMember(user)) {
+            if (o instanceof UserGroup) {
+                if (!userGroup.contains(o)) {
+                    userGroup.add((UserGroup) o);
+                }
+            }
+        }
         return ResponseEntity.ok(userGroup);
     }
 
@@ -73,7 +80,8 @@ public class GroupController {
     }
 
     @PostMapping("/{groupId}/accept-request")
-    public ResponseEntity<UserGroup> acceptJoinRequest(@PathVariable Long groupId, @RequestBody Long userId) {
+    public ResponseEntity<UserGroup> acceptJoinRequest(@PathVariable Long groupId, Authentication authentication) {
+        Long userId = Long.valueOf(authentication.getName());
         UserGroup updatedGroup = groupService.acceptJoinRequest(groupId, userId);
         if (updatedGroup != null) {
             return ResponseEntity.ok(updatedGroup);

@@ -29,7 +29,10 @@ public class UserService {
     private final JWTUtils jwtUtils;
     private final GoogleIdTokenVerifier verifier;
 
-    public UserService(@Value("${spring.security.oauth2.client.registration.google.client-id}") String clientId, UserRepository userRepository,
+    private static String clientId;
+    private static String clientSecret;
+
+    public UserService(@Value("${spring.security.oauth2.client.registration.google.client-id}") String clientId, @Value("${spring.security.oauth2.client.registration.google.client-secret}") String clientSecret, UserRepository userRepository,
                        JWTUtils jwtUtils) {
         this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
@@ -38,6 +41,8 @@ public class UserService {
         verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
                 .setAudience(Collections.singletonList(clientId))
                 .build();
+        UserService.clientId = clientId;
+        UserService.clientSecret = clientSecret;
     }
 
     public User getUser(String jwtToken) {
@@ -72,17 +77,7 @@ public class UserService {
 
     private User verifyIDToken(String code) {
         try {
-            GoogleAuthorizationCodeTokenRequest tokenRequest = new GoogleAuthorizationCodeTokenRequest(
-                    new NetHttpTransport(),
-                    new GsonFactory(),
-                    "https://oauth2.googleapis.com/token",
-                    "711179595342-nkfve6rbulc846pmhdqteint0fch7jt5.apps.googleusercontent.com",
-                    "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",
-                    code,
-                    "http://localhost:8080"
-            );
-
-            TokenResponse tokRes = tokenRequest.execute();
+            TokenResponse tokRes = getTokenResponse(code);
 
             GoogleIdToken idTokenObj = verifier.verify((String) tokRes.get("id_token"));
             if (idTokenObj == null) {
@@ -101,6 +96,20 @@ public class UserService {
             System.out.println(e.toString());
             return null;
         }
+    }
+
+    private static TokenResponse getTokenResponse(String code) throws IOException {
+        GoogleAuthorizationCodeTokenRequest tokenRequest = new GoogleAuthorizationCodeTokenRequest(
+                new NetHttpTransport(),
+                new GsonFactory(),
+                "https://oauth2.googleapis.com/token",
+                clientId,
+                clientSecret,
+                code,
+                "http://localhost:8080"
+        );
+
+        return tokenRequest.execute();
     }
 
     public User findByEmail(String email) {

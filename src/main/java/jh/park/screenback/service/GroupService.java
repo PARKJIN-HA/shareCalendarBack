@@ -74,7 +74,13 @@ public class GroupService {
             User user = userService.findById(userId);
 
             if (user != null) {
-                userGroup.getGroupMembers().add(user.getId());
+                List<User> members = new ArrayList<>();
+                members.add(user);
+                for (Long groupMember : userGroup.getGroupMembers()) {
+                    User temp = userService.findById(groupMember);
+                    members.add(temp);
+                }
+                userGroup.setGroupMembers(members);
                 UserGroup updatedGroup = groupRepository.save(userGroup);
                 eventPublisher.publishEvent(new JoinRequestAcceptedEvent(this, updatedGroup, user));
                 return updatedGroup;
@@ -85,5 +91,9 @@ public class GroupService {
 
     public void sendJoinRequestNotification(UserGroup group, User user) {
         eventPublisher.publishEvent(new JoinRequestEvent(this, group, user));
+    }
+
+    public Iterable<Object> findAllByGroupMember(User user) {
+        return groupRepository.findAllByGroupMembers_Id(user.getId());
     }
 }

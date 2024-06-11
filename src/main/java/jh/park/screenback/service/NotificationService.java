@@ -64,6 +64,7 @@ public class NotificationService {
         notification.setMessage("You have a join request for group: " + event.getGroup().getName());
         notification.setUser(event.getUser());
         notification.setUserGroup(event.getGroup());
+        notification.setType(99);
         notification.setRead(false);
         save(notification);
     }
@@ -74,6 +75,7 @@ public class NotificationService {
         notification.setMessage("Your join request for group: " + event.getGroup().getName() + " has been accepted");
         notification.setUser(event.getUser());
         notification.setUserGroup(event.getGroup());
+        notification.setType(98);
         notification.setRead(false);
         save(notification);
     }
