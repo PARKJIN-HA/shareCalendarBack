@@ -12,11 +12,14 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String message;
-    private boolean is_read;
+    private boolean isRead;
     private int type;
 
     private String url;
 
     @ManyToOne
     private User user;
+
+    @ManyToOne
+    private UserGroup userGroup;
 }

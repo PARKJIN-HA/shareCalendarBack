@@ -103,7 +103,15 @@ public class UserService {
         }
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }

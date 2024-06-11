@@ -1,5 +1,6 @@
 package jh.park.screenback.controller;
 
+import jh.park.screenback.dto.UserGroupDTO;
 import jh.park.screenback.model.Gantt;
 import jh.park.screenback.model.User;
 import jh.park.screenback.service.UserService;
@@ -13,6 +14,7 @@ import jh.park.screenback.service.GroupService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -46,11 +48,37 @@ public class GroupController {
         return ResponseEntity.ok(createdUserGroup);
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
         groupService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{groupId}")
+    public ResponseEntity<UserGroup> updateGroup(@PathVariable Long groupId, @RequestBody UserGroupDTO userGroup) {
+        System.out.println("Updating group" + groupId + " with " + userGroup.toString());
+        UserGroup updatedUserGroup = groupService.update(groupId, userGroup);
+        return ResponseEntity.ok(updatedUserGroup);
+    }
+
+    @PostMapping("/{groupId}/join-request")
+    public ResponseEntity<Void> sendJoinRequest(@PathVariable Long groupId, @RequestBody String userId) {
+        Optional<UserGroup> group = groupService.findById(groupId);
+        User user = userService.findByEmail(userId);
+        if (group.isPresent() && user != null) {
+            groupService.sendJoinRequestNotification(group.get(), user);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/{groupId}/accept-request")
+    public ResponseEntity<UserGroup> acceptJoinRequest(@PathVariable Long groupId, @RequestBody Long userId) {
+        UserGroup updatedGroup = groupService.acceptJoinRequest(groupId, userId);
+        if (updatedGroup != null) {
+            return ResponseEntity.ok(updatedGroup);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/{groupId}/join")

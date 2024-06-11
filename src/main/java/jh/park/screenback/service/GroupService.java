@@ -1,7 +1,10 @@
 package jh.park.screenback.service;
 
+import jh.park.screenback.dto.UserGroupDTO;
 import jh.park.screenback.model.User;
+import jh.park.screenback.model.Notification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import jh.park.screenback.model.UserGroup;
@@ -16,6 +19,10 @@ public class GroupService {
 
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     public UserGroup save(UserGroup userGroup) {
         return groupRepository.save(userGroup);
@@ -37,5 +44,46 @@ public class GroupService {
         return groupRepository.findUserGroupsByGroupMembers_Id(groupMember.getId());
     }
 
-    // Add other necessary methods
+    public UserGroup update(Long id, UserGroupDTO userGroup) {
+        Optional<UserGroup> optionalUserGroup = groupRepository.findById(id);
+        if (optionalUserGroup.isPresent()) {
+            UserGroup existingUserGroup = optionalUserGroup.get();
+            existingUserGroup.setName(userGroup.getName());
+
+            String email = userGroup.getInviteEmail();
+
+            if (email != null) {
+                User user = userService.findByEmail(email);
+                if (user != null) {
+                    existingUserGroup.getGroupMembers().add(user.getId());
+                    UserGroup updatedGroup = groupRepository.save(existingUserGroup);
+                    eventPublisher.publishEvent(new JoinRequestAcceptedEvent(this, updatedGroup, user));
+                    return updatedGroup;
+                }
+            }
+
+            return groupRepository.save(existingUserGroup);
+        }
+        return null;
+    }
+
+    public UserGroup acceptJoinRequest(Long groupId, Long userId) {
+        Optional<UserGroup> optionalUserGroup = groupRepository.findById(groupId);
+        if (optionalUserGroup.isPresent()) {
+            UserGroup userGroup = optionalUserGroup.get();
+            User user = userService.findById(userId);
+
+            if (user != null) {
+                userGroup.getGroupMembers().add(user.getId());
+                UserGroup updatedGroup = groupRepository.save(userGroup);
+                eventPublisher.publishEvent(new JoinRequestAcceptedEvent(this, updatedGroup, user));
+                return updatedGroup;
+            }
+        }
+        return null;
+    }
+
+    public void sendJoinRequestNotification(UserGroup group, User user) {
+        eventPublisher.publishEvent(new JoinRequestEvent(this, group, user));
+    }
 }

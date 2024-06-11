@@ -7,6 +7,7 @@ import jh.park.screenback.dto.IdTokenRequestDto;
 import jh.park.screenback.dto.ReturnResponse;
 import jh.park.screenback.model.User;
 import jh.park.screenback.service.UserService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,9 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -85,5 +88,26 @@ public class UserController {
         }
 
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.findAll();
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<User>> getUserById(@PathVariable List<Long> id) {
+        List<User> users = new ArrayList<>();
+        for (Long userId : id) {
+            if (userId == null) {
+                return ResponseEntity.status(400).build();
+            }
+            users.add(userService.findById(userId));
+        }
+        if (users.isEmpty()) {
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity.ok(users);
     }
 }
